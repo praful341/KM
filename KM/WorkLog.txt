@@ -1,0 +1,12 @@
+﻿------------------------------------------------
+Date : 14/06/2020
+Amit :   SP Name   : 1) WEB_TRN_Demand_GetData.
+					 2) WEB_TRN_Demand_Status_Update.
+					 3) TRN_Demand_GetData.(Changes coloumn sequence)
+					 4) MST_Broker_GetData.(Changes coloumn sequence)
+					 5) MST_Party_GetData.(Changes coloumn sequence)	 					
+------------------------------------------------
+Date : 20/06/2020
+Amit :   SP Name   : 1) TRN_Demand_GetData_Web. ----Update
+					 					
+------------------------------------------------

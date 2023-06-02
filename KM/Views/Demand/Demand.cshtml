@@ -1,0 +1,821 @@
+﻿
+@{
+    ViewBag.Title = "Demand";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/plugins/toastr/toastr.min.css" rel="stylesheet" />
+<script src="~/plugins/toastr/toastr.min.js"></script>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Demand</h1>
+            </div>
+            @*<div class="col-sm-6">
+                    <button type="button" class="btn btn-success float-right"><i class="fas fa-plus"></i> New Memo</button>
+                </div>*@
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                @*<div class="card-header">
+                        <h3 class="card-title">DataTable with minimal features & hover style</h3>
+                    </div>*@
+                <div class="card-body">
+                    <div class="row">
+                        <div class="form-group col-sm-2">
+                            <label for="Demand_No">Demand No</label>
+                            <input type="text" class="form-control form-control-sm" id="Demand_No" readonly="readonly">
+                        </div>
+                        @*<div class="form-group col-2">
+                                <label for="Demand_Name">Demand Name</label>
+                                <input type="text" class="form-control form-control-sm" id="Demand_Name">
+                            </div>*@
+                        <div class="form-group col-sm-2">
+                            <label for="Demand_date">Demand Date</label>
+                            <input type="date" class="form-control form-control-sm" id='Demand_date'>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="ddl_party">Party</label>
+                            @Html.DropDownList("ddl_party", (MultiSelectList)ViewBag.PartyDisplayNameList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Party", @id = "ddl_party" })
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="ddl_broker">Broker</label>
+                            @Html.DropDownList("ddl_broker", (MultiSelectList)ViewBag.BrokerDisplayNameList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Broker", @id = "ddl_broker" })
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="Term_Days">Term Days</label>
+                            <input type="text" class="form-control form-control-sm" id="TermDays">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="ddl_broker">Currency Type</label>
+                            @Html.DropDownList("ddl_Currency", (MultiSelectList)ViewBag.CurrencyTypeList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Currency", @id = "ddl_Currency" })
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-sm-2">
+                                <label for="txtFRate">FromRate</label>
+                                <input type="text" class="form-control form-control-sm" id="txtFRate" onchange="GetAssort();">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="txtTRate">ToRate</label>
+                                <input type="text" class="form-control form-control-sm" id="txtTRate" onchange="GetAssort();">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="ddl_Shade_Color">Color</label>
+                                @Html.DropDownList("ddl_shade_color", (MultiSelectList)ViewBag.RoughShadeDisplayNameList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Color Shade", @id = "ddl_shade_color", @onchange = "GetAssort()" })
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label for="ddl_Shade_Color">Purity</label>
+                                @Html.DropDownList("ddl_purity", (MultiSelectList)ViewBag.PurityList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Purity", @id = "ddl_purity" })
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label for="ddl_Shade_Color">Cutting</label>
+                                @Html.DropDownList("ddl_cut", (MultiSelectList)ViewBag.CuttingList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Cutting", @id = "ddl_cut" })
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="ddl_sieve">Sieve</label>
+                                @Html.DropDownList("ddl_sieve", (MultiSelectList)ViewBag.SieveDisplayNameList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Broker", @id = "ddl_sieve", @onchange = "GetAssort()" })
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="ddl_assort">Assort</label>
+                                @Html.DropDownList("ddl_assort", (MultiSelectList)ViewBag.AssortDisplayNameList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Party", @id = "ddl_assort", @onchange = "GetLatestPrice()" })
+                            </div>
+
+                            <div class="form-group col-sm-2">
+                                <label for="txtCarat">Carat</label>
+                                <input type="text" class="form-control form-control-sm" id="txtCarat" onchange="CalulateAmount();">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="txtRate">Rate</label>
+                                <input type="text" class="form-control form-control-sm" id="txtRate" onchange="CalulateAmount();">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="txtAmount">Amount</label>
+                                <input type="text" class="form-control form-control-sm" id="txtAmount" readonly="readonly">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <br />
+                                <button type="button" id="btnAdd" onclick="addRow()" class="btn btn-primary" style="display: block;" tabindex="9">Add</button>
+                            </div>
+                        </div>
+                        <input type="text" id="txtCurRate" hidden="hidden">
+                        <input type="text" id="txtCurAmount" hidden="hidden">
+                    </div>
+
+                </div>
+                <div class="card">
+                    <div class="card-body" style="height : 200px;">
+                        <div style="overflow: auto;" class="table-responsive">
+                            <div style="overflow: auto; max-height: 600px;">
+                                <div id="gridboxmap1" class="box-body table-responsive no-padding">
+                                    <table id="myTable" cellspacing="0" cellpadding="0" style="width: 100%; margin-bottom: 5px;white-space: nowrap;" class="table-bordered table-condensed table-striped grid">
+                                        <thead class="uppercase">
+                                            <tr>
+                                                <th>RowNo</th>
+                                                <th>From Rate</th>
+                                                <th>To Rate</th>
+                                                <th>Color Id</th>
+                                                <th>Color</th>
+                                                <th>Purity Id</th>
+                                                <th>Purity</th>
+                                                <th>Cutting</th>
+                                                <th>Assort Id</th>
+                                                <th>Assort</th>
+                                                <th>Sieve Id</th>
+                                                <th>Sieve</th>
+                                                <th>Carat</th>
+                                                <th>Rate</th>
+                                                <th>Amount</th>
+                                                <th>Current Rate</th>
+                                                <th>Current Amount</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                        <tfoot style="font-size: larger;font-weight: bold;background-color: yellowgreen;"><tr><th colspan="11" style="text-align:right">Total:</th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot>
+                                    </table>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="row">
+                        <div class="form-group col-sm-2">
+                            <label for="txtFollow">Follow</label>
+                            <input type="text" class="form-control form-control-sm" id="txtfollow" placeholder="">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label for="txtMobile">Mobile</label>
+                            <input type="text" class="form-control form-control-sm" id="txtMobile" placeholder="">
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-sm-2">
+                            @Html.DropDownList("ddl_status", (MultiSelectList)ViewBag.StatusNameList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Status", @id = "ddl_status" })
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <input type="checkbox" id="CheckDealFinal" name="checkDealFinal" class="ckbox ckbox-primary" style="margin-top:12px" />
+                            <label style="text-align: left; padding-left: 0%" for="checkDealFinal">Deal Final</label>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <input type="text" class="form-control form-control-sm" id="txtRemarks" placeholder="Entry Remarks">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <input type="text" class="form-control form-control-sm" id="txtSpecialRemarks" placeholder="JKK Remarks">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <input type="text" class="form-control form-control-sm" id="txtClientRemarks" placeholder="Sale Remarks">
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <input type="text" class="form-control form-control-sm" id="txtPaymentRemarks" placeholder="Account Remarks">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                   <p>
+                    <input type="button" id="btnSave" class="btn btn-primary" value="Save">
+                    @*<input type="button" id="btnExport" class="btn btn-primary" value="Export">*@
+                    @*<button class="dt-button buttons-excel buttons-html5" tabindex="0" aria-controls="example" type="button"><span>Excel</span></button>
+                    <button class="dt-button buttons-pdf buttons-html5" tabindex="0" aria-controls="example" type="button"><span>PDF</span></button>*@
+                    <input type="button" id="btnClear" class="btn btn-primary" value="Clear" onclick="Clear()">
+                       </p> 
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</section>
+<script type="text/javascript">
+    //$(function () {
+    //    $('#datetimepicker4').datetimepicker();
+    //});
+    var isAdd = false;
+    var isSave = false;
+    var upd_flag = true;
+    var upd_price = true;
+    var demandNo = '0';
+    var demandSrno = 0;
+    count = 1;
+    editRowNo = 0
+    //$('#txtFRate').change(function () {
+    function CalulateAmount() {
+        debugger
+        if ($('#txtRate').val() != '' && $('#txtRate').val() != '0' && $('#txtCarat').val() != '' && $('#txtCarat').val() != '0') {
+            var amount = ($('#txtRate').val() * $('#txtCarat').val());
+            var curamount = ($('#txtCurRate').val() * $('#txtCarat').val());
+            $('#txtAmount').val(amount);
+            $('#txtCurAmount').val(curamount);
+        }
+    }
+    function GetAssort() {
+        if (upd_flag == true) {
+            //ViewBag.AssortDisplayNameList = null;
+            if ($('#txtFRate').val() != '' && $('#txtTRate').val() != '' && $('#ddl_shade_color').val() != '') {
+
+                $.ajax({
+                    "url": '@Url.Action("RateWise_Assort", "Demand")',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    "data": JSON.stringify({
+                        from_rate: $("#txtFRate").val(),
+                        to_rate: $("#txtTRate").val(),
+                        rough_shade_id: $("#ddl_shade_color").val(),
+                        sieve_id: $("#ddl_sieve").val(),
+                        currency_id: $("#ddl_Currency").val()
+                    }),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+
+                    $("#ddl_assort").empty();
+
+                    var optionhtml1 = '<option value="' +
+                     0 + '">' + "Select Assort" + '</option>';
+                    $("#ddl_assort").append(optionhtml1);
+
+                    $.each(data, function (i) {
+                        var optionhtml = '<option value="' + data[i].Value + '">' + data[i].Text + '</option>';
+                        $("#ddl_assort").append(optionhtml);
+                    });
+                    GetLatestPrice();
+                    //Clear();
+                    //display();
+
+                });
+            }
+        }
+        else {
+            upd_flag = true;
+        }
+
+    }
+
+    $(document).ready(function () {
+        //show_loader();
+
+
+
+        var d = new Date();
+        var date = (d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + (d.getDate()));
+        //const date = new Date();
+        //const formattedDate = date.toLocaleDateString('en-GB', {
+        //    year: 'numeric', day: '2-digit', month: 'short',
+        //}).replace(/ /g, '-');
+        GenerateGrid();
+
+        $('#Demand_date').val(date);
+        //document.getElementById("Demand_date").value = formattedDate;
+
+        //$("#ddl_assort").prop('disabled', true);
+        //$("#ddl_assort").prop('disabled', true);
+        //$("#ddl_assort").prop('disabled', true);
+        //$("#txtQTY").prop('disabled', true);
+        //$("#txtRate").prop('disabled', true);
+        //$("#txtDiscount").prop('disabled', true);
+        //$("#btnAdd").prop('disabled', true);
+        //$("#Tax_Is_Applicable").hide();
+
+
+        //$("#To_Date").datepicker().datepicker("setDate", new Date());
+
+
+    });
+    function GenerateGrid() {
+        var myTable = $('#myTable').DataTable({            
+            'bFilter': false,
+            'bInfo': false,
+            'bPaginate': false,
+            "fnDrawCallback": function (row, data, start, end, display) {
+
+                var api = this.api();
+                nb_cols = api.columns().nodes().length;
+                var j = 12;
+                while (j < nb_cols) {
+                    if (j == 12 || j == 14 || j == 16) {
+                        var pageTotal = api
+                        //.column( j, { page: 'current'} )
+                        .column(j)
+                        .data()
+                        .reduce(function (a, b) {
+                            return Number(a) + Number(b);
+                        }, 0);
+                        // Update footer
+                        $(api.column(j).footer()).html(pageTotal.toFixed(2));
+                        j++;
+                    }
+                        //if (j == 13) {
+
+                        //}
+                    else {
+                        j++;
+
+                    }
+                }
+            },
+            "columns": [
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                                {
+                                    "bSortable": false,
+                                    "sWidth": "1%",
+                                    "render": function (data, type, row, meta) {
+                                        return '<center><a href="javascript:void(0);" onclick="EditDetails(' + row[0] + ',\'' + row[1] + '\',\'' + row[2] + '\',' + row[3] + ',\'' + row[4] + '\',' + row[5] + ',\'' + row[6] + '\',\'' + row[7] + '\',' + row[8] + ',\'' + row[9] + '\',' + row[10] + ',\'' + row[11] + '\',\'' + row[12] + '\',\'' + row[13] + '\',\'' + row[14] + '\',\'' + row[15] + '\',\'' + row[16] + '\');" style="padding:5px;"><i class="fa fa-edit" style="color:#444;"></i></a></center>'
+                                    }
+                                }
+
+                              //{
+                              //    "bSortable": false,
+                              //    "sWidth": "1%",
+                              //    "render": function (data, type, row, meta) {
+                              //        //return '<center><a href="javascript:void(0);" class="del" style="padding:5px;"><i class="fa fa-times" style="color:#444;"></i></a></center>'
+                              //        //return '<center><i id="del" class="fa fa-edit" style="color:#444;"></i></center>'
+                              //    }
+                              //}
+            ],
+            "columnDefs": [
+                { "targets": [3], "visible": false },
+                { "targets": [5], "visible": false },
+                
+                { "targets": [8], "visible": false },
+                { "targets": [10], "visible": false },
+
+                { "targets": [15], "visible": false },
+                { "targets": [16], "visible": false }
+                
+            ]
+            
+        });
+
+
+
+        //$('#myTable').DataTable({
+        //    dom: 'Bfrtip',
+        //    buttons: [
+        //        'copy', 'csv', 'excel', 'pdf', 'print'
+        //    ]
+        //});
+
+
+    }
+    //$('#btnExport').click(function () {
+    //    //var table = $('#myTable').DataTable();
+
+    //    window.open('data:application/vnd.ms-excel,' + $('#myTable').html());
+    //    e.preventDefault();
+
+
+    //});
+    $('#btnSave').click(function () {
+        isSave = true;
+        isAdd = false;
+        
+        if (Valid()) {
+            var myTable = $('#myTable').DataTable();
+            var rowData = myTable.rows().data();
+            rowData.each(function (value, index) {
+                debugger
+                //alert(demandNo);
+                $.ajax({
+                    url: '@Url.Action("Demand_SaveForm", "Demand")',
+                    type: "POST",
+                    async:false,
+                    dataType: "json",
+                    data: JSON.stringify({
+                        demand_No: demandNo,
+                        demand_master_id: 0,
+                        demand_Srno: demandSrno,
+                        demand_date: $("#Demand_date").val(),
+                        party_id: $("#ddl_party").val(),
+                        broker_id: $("#ddl_broker").val(),
+                        term_days: $("#TermDays").val(),
+                        currency_id: $("#ddl_Currency").val(),
+                        Remark: $("#txtRemarks").val(),
+                        Special_Remark: $("#txtSpecialRemarks").val(),
+                        Client_Remark: $("#txtClientRemarks").val(),
+                        Payment_Remark: $("#txtPaymentRemarks").val(),
+                        demand_deal_final: $("#CheckDealFinal")[0].checked == true ? 1 : 0,
+                        from_rate: value[1],
+                        to_rate: value[2],
+                        rough_shade_id: value[3],
+                        purity_id: value[5],
+                        cutting: value[7],
+                        assort_id: value[8],
+                        sieve_id: value[10],
+                        carat: value[12],
+                        rate: value[13],
+                        amount: value[14],
+                        current_rate: value[15],
+                        current_amount: value[16],
+                        status: $("#ddl_status").val(),
+                        Follow: $("#txtfollow").val(),
+                        MobileNo: $("#txtMobile").val()
+                    }),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+                    if (data.success) {
+                        demandNo = data.demand_no;
+                        demandSrno = data.demand_srno;
+                        //alert(data.demand_no);
+                        Clear();                      
+                        //display();
+                        $("#btnSave").attr('class', 'btn btn-success');
+                    }
+                    //bootbox.alert(data.message);
+                    alert(data.message);
+                });
+                //Clear();
+                //display();
+                //bootbox.alert(data.message);
+               
+
+            });
+            alert(data.message);
+            count = 0;
+            $("#btnSave").text('Save');
+        }
+    });
+    function GetLatestPrice() {
+        if ($('#ddl_assort').val() != '' && $('#ddl_sieve').val()) {
+            if (upd_price) {
+                $.ajax({
+                    url: '@Url.Action("GetLatestPrice", "Demand")',
+                    type: "POST",
+                    dataType: "json",
+                    data: JSON.stringify({
+
+                        assort_id: $("#ddl_assort").val(),
+                        sieve_id: $("#ddl_sieve").val()
+
+                    }),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+                    if (data.success) {
+
+                        $("#txtRate").val(data.result);
+                        $("#txtCurRate").val(data.result);
+
+                    }
+                    //bootbox.alert(data.message);
+                });
+            }
+            else {
+                upd_price = true;
+            }
+            //Clear();
+            //display();
+            //bootbox.alert(data.message);
+            //alert(data.message);
+        }
+
+    }
+    function Clear() {
+        $("#txtFRate").val('0');
+        $("#txtTRate").val('0');
+        $("#ddl_shade_color").val(0);
+        //$("#ddl_shade_color option:selected").text('Please Select'),
+        $("#ddl_purity").val(0);
+        //$("#ddl_purity option:selected").text('Please Select'),
+        $("#ddl_cut").val('Please Select');
+        $("#ddl_assort").val(0);
+        //$("#ddl_assort option:selected").text('Please Select'),
+        $("#ddl_sieve").val(0);
+        //$("#ddl_sieve option:selected").text('Please Select'),
+        $("#txtCarat").val('0');
+        $("#txtRate").val('0');
+        $("#txtAmount").val('0');
+        $("#txtCurRate").val('0');
+        $("#txtCurAmount").val('0');
+        //$("#Demand_date").val(''),
+        $("#ddl_party").val(0);
+        //$("#ddl_party option:selected").text('Please Select'),
+        $("#ddl_broker").val(0);
+        //$("#ddl_broker option:selected").text('Please Select'),
+        $("#TermDays").val('0');
+        $("#ddl_Currency").val(6);
+        $("#txtRemarks").val('');
+        $("#txtSpecialRemarks").val('');
+        $("#txtClientRemarks").val('');
+        $("#txtPaymentRemarks").val('');
+
+        $("#txtPaymentRemarks").val('');
+        $("#txtPaymentRemarks").val('');
+
+        $("#txtfollow").val('');
+        $("#txtMobile").val('');
+        $("#btnAdd").text('Save');
+        $("#btnAdd").attr('class', 'btn btn-primary');
+        //$("#myTable").detach();
+        //GenerateGrid();
+        $("#myTable").DataTable().clear().draw();
+    }
+
+    function EditDetails(RowNo, FromRate, ToRate, ColorId, Color, PurityId, Purity, Cut, AssortId, Assort, SieveId, Sieve, Carat, Rate, Amount, CurRate, CurAmount) {
+        debugger
+        editRowNo = RowNo;
+        $("#txtFRate").val(FromRate);
+        $("#txtTRate").val(ToRate);
+        $("#ddl_shade_color").val(ColorId).trigger("change");
+        $("#ddl_purity").val(PurityId).trigger("change");
+        $("#ddl_cut").val(Cut).trigger("change");
+        $("#ddl_sieve").val(SieveId).trigger("change");
+        $("#ddl_assort").val(AssortId).trigger("change");
+        $("#txtCarat").val(Carat);
+        $("#txtRate").val(Rate);
+        $("#txtAmount").val(Amount);
+        $("#txtCurRate").val(CurRate);
+        $("#txtCurAmount").val(CurAmount);
+        $("#btnAdd").text('Update');
+        $("#btnAdd").attr('class', 'btn btn-warning');
+        upd_flag = false;
+        upd_price = false;
+    }
+
+    function addRow() {
+        isAdd = true;
+        isSave = false;
+        debugger
+        if (Valid()) {
+            debugger
+            var isValid = true;
+            var tmpCheck = 0;
+            var itemCheck = 0;
+            if ($("#btnAdd").text() == 'Add') {
+                var myTable = $('#myTable').DataTable();
+                var rowData = myTable.rows().data();
+                rowData.each(function (value, index) {
+                    if (value[1] == $("#ddl_assort").val() && value[3] == $("#ddl_sieve").val()) {
+                        toastr.error($("#ddl_assort option:selected").text() + ' and' + $("#ddl_sieve option:selected").text() + ' already added to the grid!');
+                        itemCheck = 1;
+                    }
+                });
+            }
+            if (itemCheck == 0) {
+                //alert($("#Is_GST_Included").prop("checked"));
+                $('.formrequired').each(function () {
+                    if ($.trim($(this).val()) == '') {
+                        isValid = false;
+                        $(this).css({
+                            "border": "1px solid red"
+                            //"background": "#FFCECE"
+                        });
+                        if (tmpCheck == 0) {
+                            $(this).focus();
+                            tmpCheck = 1;
+                        }
+                    }
+                    else {
+                        $(this).css({
+                            "border": "",
+                            "background": ""
+                        });
+                    }
+                });
+                tmpCheck = 0;
+                $('.valrequired').each(function () {
+                    if ($.trim($(this).val()) == '0') {
+                        isValid = false;
+                        //Toast.fire({
+                        //    type: 'error',
+                        //    title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+                        //});
+                        $(this).css({
+                            "background": "#ffe9e9"
+                        });
+                        toastr.error('Value can\'t be 0!');
+                        if (tmpCheck == 0) {
+                            $(this).focus();
+                            tmpCheck = 1;
+                        }
+                    }
+                    else {
+                        $(this).css({
+                            "background": ""
+                        });
+                    }
+                });
+
+                if (isValid) {
+                    debugger
+                    editRowNo = editRowNo - 1;
+                    if ($("#btnAdd").text() == 'Update') {
+                        $('#myTable').dataTable().fnUpdate($("#txtFRate").val(), editRowNo, 1);
+                        $('#myTable').dataTable().fnUpdate($("#txtTRate").val(), editRowNo, 2);
+                        $('#myTable').dataTable().fnUpdate($("#ddl_shade_color").val(), editRowNo, 3);
+                        $('#myTable').dataTable().fnUpdate($("#ddl_shade_color option:selected").text(), editRowNo, 4);
+                        $('#myTable').dataTable().fnUpdate($("#ddl_purity").val(), editRowNo, 5);
+                        $('#myTable').dataTable().fnUpdate($("#ddl_purity option:selected").text(), editRowNo, 6);
+                        $('#myTable').dataTable().fnUpdate($("#ddl_cut option:selected").text(), editRowNo, 7);
+                        $('#myTable').dataTable().fnUpdate($("#ddl_assort").val(), editRowNo, 8);
+                        $('#myTable').dataTable().fnUpdate($("#ddl_assort option:selected").text(), editRowNo, 9);
+                        $('#myTable').dataTable().fnUpdate($("#ddl_sieve").val(), editRowNo, 10);
+                        $('#myTable').dataTable().fnUpdate($("#ddl_sieve option:selected").text(), editRowNo, 11);
+                        $('#myTable').dataTable().fnUpdate($("#txtCarat").val(), editRowNo, 12);
+                        $('#myTable').dataTable().fnUpdate($("#txtRate").val(), editRowNo, 13);
+                        $('#myTable').dataTable().fnUpdate($("#txtAmount").val(), editRowNo, 14);
+                        $('#myTable').dataTable().fnUpdate($("#txtCurRate").val(), editRowNo, 15);
+                        $('#myTable').dataTable().fnUpdate($("#txtCurAmount").val(), editRowNo, 16);
+                        //$('#myTable').dataTable().fnUpdate($("#txtDiscount").val(), editRowNo, 11);
+                        //$('#myTable').dataTable().fnUpdate(SGST, editRowNo, 12);
+                        //$('#myTable').dataTable().fnUpdate(((((Number($("#txtQTY").val()) * Number($("#txtRate").val())) - $("#txtDiscount").val()) * Number(SGST)) / 100).toFixed(2), editRowNo, 13);
+                        //$('#myTable').dataTable().fnUpdate(CGST, editRowNo, 14);
+                        //$('#myTable').dataTable().fnUpdate(((((Number($("#txtQTY").val()) * Number($("#txtRate").val())) - $("#txtDiscount").val()) * Number(CGST)) / 100).toFixed(2), editRowNo, 15);
+                        //$('#myTable').dataTable().fnUpdate(IGST, editRowNo, 16);
+                        //$('#myTable').dataTable().fnUpdate(((((Number($("#txtQTY").val()) * Number($("#txtRate").val())) - $("#txtDiscount").val()) * Number(IGST)) / 100).toFixed(2), editRowNo, 17);
+                        //if ($("#Is_GST_Included").prop("checked") == true) {
+                        //    $('#myTable').dataTable().fnUpdate(
+                        //        (Number($("#txtQTY").val()) * Number($("#txtRate").val())).toFixed(2), editRowNo, 18);
+                        //}
+                        //else {
+                        //    $('#myTable').dataTable().fnUpdate(
+                        //        Number(
+                        //        Number((Number($("#txtQTY").val()) * Number($("#txtRate").val())).toFixed(2))
+                        //        -
+                        //        Number($("#txtDiscount").val())
+                        //        +
+                        //        Number(((((Number($("#txtQTY").val()) * Number($("#txtRate").val())) - $("#txtDiscount").val()) * Number(SGST)) / 100).toFixed(2))
+                        //        +
+                        //        Number(((((Number($("#txtQTY").val()) * Number($("#txtRate").val())) - $("#txtDiscount").val()) * Number(CGST)) / 100).toFixed(2))
+                        //        +
+                        //        Number(((((Number($("#txtQTY").val()) * Number($("#txtRate").val())) - $("#txtDiscount").val()) * Number(IGST)) / 100).toFixed(2))
+                        //        ).toFixed(2), editRowNo, 18);
+                        //}
+                        $("#btnAdd").text('Add');
+                        $("#btnAdd").attr('class', 'btn btn-primary');
+                    }
+                    else {
+                        debugger
+
+                        $('#myTable').dataTable().fnAddData([
+                            count,
+                        $("#txtFRate").val(),
+                        $("#txtTRate").val(),
+                        $("#ddl_shade_color").val(),
+                        $("#ddl_shade_color option:selected").text(),
+                        $("#ddl_purity").val(),
+                        $("#ddl_purity option:selected").text(),
+                        $("#ddl_cut option:selected").text(),
+                        $("#ddl_assort").val(),
+                        $("#ddl_assort option:selected").text(),
+                        $("#ddl_sieve").val(),
+                        $("#ddl_sieve option:selected").text(),
+                        $("#txtCarat").val(),
+                        $("#txtRate").val(),
+                        $("#txtAmount").val(),
+                        $("#txtCurRate").val(),
+                        $("#txtCurAmount").val()
+                        ]);
+
+                        count++;
+                    }
+                    $("#txtFRate").val(0);
+                    $("#txtTRate").val(0);
+                    $("#txtCarat").val(0);
+                    $("#txtRate").val(0);
+                    $("#txtAmount").val(0);
+                    $("#txtCurRate").val(0);
+                    $("#txtCurAmount").val(0);
+                    $("#ddl_assort").val(0);
+                    $("#ddl_sieve").val(0);
+                    $("#ddl_purity").val(0);
+                    $("#ddl_shade_color").val(0);
+                    $("#ddl_cut").val(0);
+
+                }
+            }
+        }
+        else {
+            isAdd = false;
+        }
+    }
+    //$(document).on('keypress', function (e) {
+    //    if (e.which == 13) {
+    //        e.preventDefault();
+    //        //SendMessage("");
+    //        e.keyCode = 9;
+    //    }
+    //});
+    $(document).ready(function () {
+
+        var inputs = $(':input').keypress(function (e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                var nextInput = inputs.get(inputs.index(this) + 1);
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+        });
+
+    });
+    function Valid() {
+        if (isAdd) {
+            debugger
+            if ($("#Demand_date").val() == '') {
+                alert('Please select date');
+                return false;
+            }
+                //if ($("#ddl_party").val() == '') {
+                //    alert('Please select party');
+                //    return false;
+                //}
+            else if ($("#ddl_broker").val() == '') {
+                alert('Please select broker');
+                return false;
+            }
+                //if ($("#TermDays").val() == '') {
+                //    alert('');
+                //    return false;
+                //}
+            else if ($("#ddl_Currency").val() == '') {
+                alert('Please select currency');
+                return false;
+            }
+                //if ($("#txtFRate").val() == '' && $("#txtFRate").val() == '0') {
+                //    alert('From rate should not be blank');
+                //    return false;
+                //}
+                //if ($("#txtTRate").val() == '' && $("#txtTRate").val() == '0') {
+                //    alert('To rate should not be blank');
+                //    return false;
+                //}
+            else if ($("#ddl_shade_color").val() == '' || $("#ddl_shade_color").val() == null || $("#ddl_shade_color").val() == '0') {
+                alert('Please select color');
+                return false;
+            }
+            //else if ($("#ddl_purity").val() == '') {
+            //    alert('Please select Purity');
+            //    return false;
+            //}
+            //    //if ($("#ddl_cut").val() == '') {
+                //    alert('Please select Cutting');
+                //    return false;
+                //}
+            else if ($("#ddl_assort").val() == '' || $("#ddl_assort").val() == '0' || $("#ddl_assort").val() == null) {
+                alert('Please select Assort');
+                return false;
+            }
+            else if ($("#ddl_sieve").val() == '' || $("#ddl_sieve").val() == '0' || $("#ddl_sieve").val() == null) {
+                alert('Please select Sieve');
+                return false;
+            }
+                //if ($("#txtCarat").val() == '') {
+                //    alert('Carat should not be blank');
+                //    return false;
+                //}
+                //if ($("#txtRate").val() == '' && $("#txtRate").val() == '0') {
+                //    alert('Rate should not be blank');
+                //    return false;
+                //}
+            //else if ($("#txtAmount").val() == '' && $("#txtAmount").val() == '0') {
+            //    alert('Amount should not be blank');
+            //    return false;
+            //}
+            else {
+                return true;
+            }
+        }
+        if (isSave) {
+            debugger
+            var myTable = $('#myTable').DataTable();
+            //if ($("#txtAmount").val() == '' && $("#txtAmount").val() == '0') {
+            //    alert('Amount should not be blank');
+            //    return false;
+            //}
+            if (!myTable.data().any()) {
+                alert('No data in grid');
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+    }
+</script>

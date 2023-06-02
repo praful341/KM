@@ -1,0 +1,635 @@
+﻿
+@{
+    ViewBag.Title = "DemandReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .table td {
+        padding: .15rem !important;
+    }
+</style>
+
+<link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.flash.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
+
+@*<section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Demand Report</h1>
+                </div>
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-success float-right" data-toggle="modal" data-target="#myModal" id="btnUpdateStatus" hidden="hidden"><i class="fas fa-plus"></i>Update Status</button>
+                </div>
+            </div>
+        </div>
+    </section>*@
+
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="modal bounceIn animated" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Demand Status Update</h4>
+                        <button type="button" class="close" data-dismiss="modal" id="btnCloseModal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @*<div class="row">
+                            <div class="panel">*@
+
+                        <div class="col-md-12">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="form-group col-sm-12">
+                                        <label for="ddl_Status">Demand No</label>
+                                        <input type="text" class="form-control form-control-sm" id="txtDemandNo" placeholder="" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-12">
+                                        <label for="ddl_Status">Status</label>
+                                        @Html.DropDownList("ddl_Status", (MultiSelectList)ViewBag.StatusNameList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Status", @id = "ddl_Status" })
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-12">
+                                        <label for="txtFollow">Follow</label>
+                                        <input type="text" class="form-control form-control-sm" id="txtFollow" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-12">
+                                        <label for="txtMobile">Mobile</label>
+                                        <input type="text" class="form-control form-control-sm" id="txtMobile" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-12">
+                                        <label for="txtRemarks">Entry</label>
+                                        <input type="text" class="form-control form-control-sm" id="txtRemarks" placeholder="Entry Remarks">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-12">
+                                        <label for="txtSpecialRemarks">JKK</label>
+                                        <input type="text" class="form-control form-control-sm" id="txtSpecialRemarks" placeholder="JKK Remarks">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-12">
+                                        <label for="txtClientRemarks">Sale</label>
+                                        <input type="text" class="form-control form-control-sm" id="txtClientRemarks" placeholder="Sale Remarks">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-12">
+                                        <label for="txtPaymentRemarks">Account</label>
+                                        <input type="text" class="form-control form-control-sm" id="txtPaymentRemarks" placeholder="Account Remarks">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-12">
+                                        <input type="checkbox" id="IsCheckDeal" name="IsCheckDeal" class="ckbox ckbox-primary" style="margin-top:12px" />
+                                        <label style="text-align: left; padding-left: 0%" for="IsCheckDeal">Is Deal</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @*</div>
+                            </div>*@
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <input type="button" id="btnUpdate" class="btn btn-primary" value="Update">
+                        <input type="button" id="btnClear" class="btn btn-primary" value="Clear" onclick="Clear()">
+                    </div>
+                </div><!-- modal-content -->
+            </div><!-- modal-dialog -->
+            <!-- modal -->
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="form-group col-sm-2">
+                    <label for="from_date">From Date</label>
+                    <input type="date" class="form-control form-control-sm" id='from_date'>
+                </div>
+                <div class="form-group col-sm-2">
+                    <label for="to_date">To Date</label>
+                    <input type="date" class="form-control form-control-sm" id='to_date'>
+                </div>
+                <div class="form-group col-sm-2">
+                    <br />
+                    <button type="button" id="btnAdd" onclick="display()" class="btn btn-primary" style="display: block;" tabindex="9">Search</button>
+                </div>
+                <div class="form-group col-sm-2">
+                    <br />
+                    <button type="button" id="btnPrint" onclick="print()" class="btn btn-primary" style="display: block;" tabindex="9">Print</button>
+                </div>
+
+                @*<div class="form-group col-sm-2">
+                        <label for="from_rate">From Rate</label>
+                        <input type="text" class="form-control form-control-sm" id='min'>
+                    </div>
+
+                    <div class="form-group col-sm-2">
+                        <label for="from_rate">To Rate</label>
+                        <input type="text" class="form-control form-control-sm" id='max'>
+                    </div>*@
+
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    @*<div class="card-header">
+                            <h3 class="card-title">Web Pages Master</h3>
+                        </div>*@
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-sm-2">
+                                <label for="from_rate">From Rate</label>
+                                <input type="text" class="form-control form-control-sm" id='min'>
+                            </div>
+
+                            <div class="form-group col-sm-2">
+                                <label for="from_rate">To Rate</label>
+                                <input type="text" class="form-control form-control-sm" id='max'>
+                            </div>
+                        </div>
+                        @*<div id="tbl_memo_outstanding" class="box-body table-responsive no-padding">
+                            </div>*@
+                        <table id="tbl_memo_outstanding" cellspacing="0" cellpadding="0" style="white-space:nowrap;" class="table table-bordered table-hover display">
+                            <thead class="uppercase">
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Demand No</th>
+                                    <th>Date</th>
+                                    <th>Size</th>
+                                    <th>Color</th>
+                                    <th>From Rate</th>
+                                    <th>To Rate</th>
+                                    <th>Broker</th>
+                                    <th>Party</th>
+                                    <th>Follow</th>
+                                    <th>Mobile</th>
+                                    <th>ok&baki</th>
+                                    <th>Remarks</th>
+                                    <th>Special Remarks</th>
+                                    <th>Client Remarks</th>
+                                    <th>Payment Remarks</th>
+                                    <th>Carat</th>
+                                    <th>Rate</th>
+                                    <th>Amount</th>
+                                    <th>Deal Final</th>
+                                    <th>Currency</th>
+                                    <th>Term Days</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot></tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        display();
+        var d = new Date();
+        var date = (d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + (d.getDate()));
+        $('#from_date').val(date);
+        $('#to_date').val(date);
+
+        $('#tbl_memo_outstanding thead tr').clone(true).appendTo('#tbl_memo_outstanding thead');
+
+        var table = $('#tbl_memo_outstanding').DataTable({
+            orderCellsTop: true,
+            fixedHeader: true
+        });
+
+        $('#tbl_memo_outstanding thead tr:eq(1) th').each(function (i) {
+            if (i > 0) {
+                var title = $(this).text();
+                $(this).html('<input type="text" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
+            }
+            else {
+                $(this).empty();
+            }
+            $('input', this).on('keyup', function () {
+                $('#tbl_memo_outstanding')
+                .DataTable()
+                .column(i)
+                .search(this.value)
+                .draw();
+            });
+
+            $('input', this).on('change', function () {
+                $('#tbl_memo_outstanding')
+                .DataTable()
+                .column(i)
+                .search(this.value)
+                .draw();
+            });
+        });
+
+        $('#min,#max').keyup(function () {
+            //alert("hello");
+            $('#tbl_memo_outstanding')
+                .DataTable().draw();
+        });
+        $.fn.dataTable.ext.search.push(
+
+            function (settings, data, dataIndex) {
+                //debugger;
+                //alert("hi");
+                var min = parseInt($('#min').val(), 10);
+                var max = parseInt($('#max').val(), 10);
+                var from_rate = parseFloat(data[5]) || 0; // use data for the age column
+                var to_rate = parseFloat(data[6]) || 0; // use data for the age column
+
+                if ((isNaN(min) && isNaN(max)) ||
+                     (isNaN(min) && to_rate <= max) ||
+                     (min <= from_rate && isNaN(max)) ||
+                     (min <= from_rate && to_rate <= max)) {
+                    return true;
+                }
+                return false;
+            }
+);
+
+    });
+
+    function print() {
+
+        //debugger
+        var d = new Date();
+        var date = (d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + (d.getDate()));
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("PrintReport")',
+            traditional: true,
+
+            data: JSON.stringify({
+                fromDate: $("#from_date").val(),
+                toDate: $("#to_date").val()
+            }),
+
+            contentType: "application/json; charset=utf-8"
+        }).done(function (data) {
+            if (data.success) {
+                window.open("../GenericReportViewer/ShowGenericRpt", 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+            else {
+                alert(data.message);
+            }
+        })
+    }
+
+
+
+    //$('#min').keyup(function () {
+    //    //debugger
+    //    if ($("#min").val() != '' && $("#max").val() != '')
+    //    {
+    //        display();
+    //    }
+    //    if ($("#min").val() == '' && $("#max").val() == '') {
+    //        display();
+    //    }
+    //});
+    //$('#max').keyup(function () {
+    //    //debugger
+    //    if ($("#min").val() != '' && $("#max").val() != '') {
+    //        display();
+    //    }
+    //    if ($("#min").val() == '' && $("#max").val() == '') {
+    //        display();
+    //    }
+    //});
+    function display() {
+        //debugger
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetDemandReport")',
+            traditional: true,
+            data: JSON.stringify({
+                fromDate: $("#from_date").val(),
+                toDate: $("#to_date").val(),
+                fromRate: $("#min").val(),
+                toRate: $("#max").val()
+            }),
+            contentType: 'application/json; charset=utf-8',
+            success: function (json) {
+                if (json) {
+
+                    //fetch all records from JSON result and make row data set.
+                    var rowDataSet = [];
+                    var i = 0;
+                    var totolOutStandingCarat = 0;
+                    var totolOutStandingValue = 0;
+                    $.each(json.List, function (key, value) {
+                        var rowData = [];
+                        var j = 0;
+                        $.each(json.List[i], function (key, value) {
+                            rowData[j] = value;
+                            if (j == 14) {
+                                totolOutStandingCarat = Number(totolOutStandingCarat) + Number(value);
+                            }
+                            else if (j == 16) {
+                                totolOutStandingValue = Number(totolOutStandingValue) + Number(value);
+                            }
+                            j++;
+                        });
+                        rowDataSet[i] = rowData;
+
+                        i++;
+                    });
+
+                    $("#lbl_totol_outstanding").text(i);
+                    $("#lbl_totol_outstanding_carat").text(totolOutStandingCarat);
+                    $("#lbl_totol_outstanding_value").text(totolOutStandingValue);
+
+
+
+                    var oTable = $('#tbl_memo_outstanding').dataTable({
+                        "bDestroy": true,
+                        "scrollY": 400,
+                        "scrollX": true,
+                        //"bFilter": false,
+                        "serverSide": false,
+                        "bInfo": false,
+                        "bAutoWidth": false,
+                        "bPaginate": true,
+                        "bLengthChange": true,
+                        //"fnPreDrawCallback": function () {
+                        //    show_loader();
+                        //},
+                        //"fnDrawCallback": function () {
+                        //    hide_loader();
+                        //},
+                        "bDestroy": true,
+                        "bSort": false,
+                        "sEmptyTable": "Loading data from server, Or Data Not Available...",
+                        "aaData": rowDataSet,
+                        //"aoColumns": dynamicColumns,
+                        "columns": [
+                            {
+                                "bSortable": false,
+                                "sWidth": "1%",
+                                "render": function (data, type, row, meta) {
+                                    //debugger
+                                    return '<center><a href="javascript:void(0);" onclick="EditDetails(\'' + row[1] + '\',\'' + row[11] + '\',\'' + row[19] + '\',\'' + row[12] + '\',\'' + row[13] + '\',\'' + row[14] + '\',\'' + row[15] + '\',\'' + row[9] + '\',\'' + row[10] + '\');" style="padding:5px;"><i class="fa fa-edit" style="color:#444;"></i></a></center>'
+                                }
+                            },
+
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              {
+                                  "bSortable": false,
+                                  "sWidth": "1%",
+                                  "render": function (data, type, row, meta) {
+                                      //debugger
+                                      if (row[19] == 'True') {
+                                          return '<center><input type="checkbox" id="Deal_Final" name="Deal_Final" checked="checked" readonly></center>'
+                                      }
+                                      else {
+                                          return '<center><input type="checkbox" id="Deal_Final" name="Deal_Final" readonly></center>'
+                                      }
+                                  }
+                              },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+
+                               //,
+                              //{ "sWidth": "1%" },
+                              //{ "sWidth": "1%" },
+                              //{ "sWidth": "1%" },
+                              //{ "sWidth": "1%" },
+                              //{ "sWidth": "1%" },
+                              //{ "sWidth": "1%" },
+                              //{ "sWidth": "1%" },
+                              //{ "sWidth": "1%" },
+                              //{ "sWidth": "1%" }
+
+                        //],
+                        //"columnDefs": [
+                        //    { "targets": [2], "visible": false },
+                        //    { "targets": [4], "visible": false },
+                        //    { "targets": [10], "visible": false },
+                        //    { "targets": [20], "visible": false },
+                        //    { "targets": [22], "visible": false },
+                        //    { "targets": [25], "visible": false }
+                        //    //{"orderable": false,"className": 'select-checkbox', "targets": [22]}
+                        ]
+
+                    });
+                    //$('#tblExcelImport_Company_filter').hide();
+                    //$('#txtSearch').on('keyup', function () {
+                    //    $('#tblExcelImport_Company')
+                    //    .DataTable()
+                    //    .search($('#txtSearch').val(), false, true)
+                    //    .draw();
+                    //});
+                    //$('#txtSearch').on('change', function () {
+                    //    $('#tblExcelImport_Company')
+                    //    .DataTable()
+                    //    .search($('#txtSearch').val(), false, true)
+                    //    .draw();
+                    //});
+                }
+            },
+            error: function (json) { alert("Error " + json) }
+        });
+    };
+    function EditDetails(No, Status, IsDeal, Remark, Jkk, Sale, Account, Follow, Mobile) {
+        //debugger
+        $("#txtDemandNo").val(No);
+        $("#ddl_Status").val(Status).trigger("change");
+        $("#IsCheckDeal").prop("checked", IsDeal == 'True' ? true : false);
+        $("#txtRemarks").val(Remark);
+        $("#txtSpecialRemarks").val(Jkk);
+        $("#txtClientRemarks").val(Sale);
+        $("#txtPaymentRemarks").val(Account);
+        $("#txtFollow").val(Follow);
+        $("#txtMobile").val(Mobile);
+        //$("#btnSave").attr('value','Update');
+        $("#btnUpdateStatus").click();
+    }
+
+
+
+    function Valid() {
+
+        if (isSave) {
+            //debugger
+            if ($("#ddl_Status").val() == '') {
+                alert('Select Status.');
+                return false;
+            }
+            else {
+                return true;
+            }
+
+        }
+    }
+    $('#btnCloseModal').click(function () {
+        Clear();
+    });
+    $('#btnUpdate').click(function () {
+        isSave = true;
+        //debugger
+        if (Valid()) {
+            //debugger
+            $.ajax({
+                url: '@Url.Action("DemandStatusUpdate", "Demand")',
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    demand_No: $("#txtDemandNo").val(),
+                    status: $("#ddl_Status").val(),
+                    demand_deal_final: $("#IsCheckDeal")[0].checked == true ? 1 : 0,
+                    Follow: $("#txtFollow").val(),
+                    MobileNo: $("#txtMobile").val(),
+                    Remark: $("#txtRemarks").val(),
+                    Special_Remark: $("#txtSpecialRemarks").val(),
+                    Client_Remark: $("#txtClientRemarks").val(),
+                    Payment_Remark: $("#txtPaymentRemarks").val()
+
+                }),
+                contentType: "application/json; charset=utf-8"
+            }).done(function (data) {
+                if (data.success) {
+                    Clear();
+                    display();
+                    $("#btnCloseModal").click();
+                    //$("#btnSave").attr('class', 'btn btn-success');
+
+                }
+                //bootbox.alert(data.message);
+                alert(data.message);
+            });
+            //Clear();
+            //display();
+            //bootbox.alert(data.message);
+            alert(data.message);
+
+            count = 0;
+            $("#btnSave").attr('value', 'Update');
+        }
+
+    });
+    function Clear() {
+        $("#ddl_Status").val(0);
+        $("#IsCheckDeal").prop("checked", true);
+        //$("#btnSave").attr('value', 'Save');
+    }
+
+    //    $.fn.dataTable.ext.search.push(
+    //    function (settings, data, dataIndex) {
+    //        //debugger
+    //        var min = parseInt($('#min').val(), 10);
+    //        var max = parseInt($('#max').val(), 10);
+    //        var age = parseFloat(data[5]) || 0; // use data for the age column
+
+    //        if ((isNaN(min) && isNaN(max)) ||
+    //             (isNaN(min) && age <= max) ||
+    //             (min <= age && isNaN(max)) ||
+    //             (min <= age && age <= max)) {
+    //            return true;
+    //        }
+    //        return false;
+    //    }
+    //);
+
+    //$(document).ready(function () {
+
+    //    $('#tbl_memo_outstanding thead tr').clone(true).appendTo('#tbl_memo_outstanding thead');
+    //    $('#tbl_memo_outstanding thead tr:eq(1) th').each(function (i) {
+    //        var title = $(this).text();
+    //        $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+    //        $('input', this).on('keyup change', function () {
+    //            if (table.column(i).search() !== this.value) {
+    //                alert(i);
+    //                alert(this.value);
+    //                table
+    //                    .column(i + 1)
+    //                    .search(this.value)
+    //                    .draw();
+    //            }
+    //        });
+    //    });
+
+    //    var table = $('#tbl_memo_outstanding').DataTable({
+    //        orderCellsTop: true,
+    //        fixedHeader: true
+    //    });
+    //    // Event listener to the two range filtering inputs to redraw on input
+    //    //$('#min, #max').keyup(function () {
+    //    //    table.draw();
+    //    //});
+
+
+    //});
+
+    //$(document).ready(function () {
+    //    $('#tbl_memo_outstanding').DataTable({
+    //        initComplete: function () {
+    //            this.api().columns().every(function () {
+    //                var column = this;
+    //                var select = $('<select><option value=""></option></select>')
+    //                    .appendTo($(column.footer()).empty())
+    //                    .on('change', function () {
+    //                        var val = $.fn.dataTable.util.escapeRegex(
+    //                            $(this).val()
+    //                        );
+
+    //                        column
+    //                            .search(val ? '^' + val + '$' : '', true, false)
+    //                            .draw();
+    //                    });
+
+    //                column.data().unique().sort().each(function (d, j) {
+    //                    select.append('<option value="' + d + '">' + d + '</option>')
+    //                });
+    //            });
+    //        }
+    //    });
+    //});
+
+</script>

@@ -1,0 +1,366 @@
+﻿
+@{
+    ViewBag.Title = "DemandStatus";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .table td {
+        padding: .35rem;
+    }
+</style>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Demand List</h1>
+            </div>
+            <div class="col-sm-6">
+                <button type="button" id="btnNewAdd" class="btn btn-success float-right" data-toggle="modal" data-target="#myModal" hidden="hidden"><i class="fas fa-plus"></i>Demand Update</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                @*<div class="card-header">
+                        <h3 class="card-title">Web Pages Master</h3>
+                    </div>*@
+                <!-- /.card-header -->
+                <div class="card-body">
+                    @*<div id="tbl_memo_outstanding" class="box-body table-responsive no-padding">
+                        </div>*@
+                    <table id="tbl_Demand" cellspacing="0" cellpadding="0" class="table table-bordered table-hover">
+                        <thead class="uppercase">
+                            <tr>
+                                <th>Action</th>
+                                <th>Srno</th>
+                                <th>Demand No</th>
+                                <th>Date</th>
+                                <th>Party</th>
+                                <th>Broker</th>
+                                <th>Carat</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>IsDeal</th>
+                                <th>Entry</th>
+                                <th>Jkk</th>
+                                <th>Sale</th>
+                                <th>Account</th>
+                                <th>Follow</th>
+                                <th>Mobile</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal bounceIn animated" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Demand Status Update</h4>
+                    <button type="button" class="close" data-dismiss="modal" id="btnCloseModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @*<div class="row">
+                        <div class="panel">*@
+                    <input type="text" class="form-control form-control-sm" id="txtDemandNo" hidden="hidden">
+                    <div class="col-md-12">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="ddl_Status">Status</label>
+                                    @Html.DropDownList("ddl_Status", (MultiSelectList)ViewBag.StatusNameList, "Please Select...", new { @class = "form-control form-control-sm", @placeholder = "Status", @id = "ddl_Status" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="txtFollow">Follow</label>
+                                    <input type="text" class="form-control form-control-sm" id="txtFollow" placeholder="">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="txtMobile">Mobile</label>
+                                    <input type="text" class="form-control form-control-sm" id="txtMobile" placeholder="">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="txtRemarks">Entry</label>
+                                    <input type="text" class="form-control form-control-sm" id="txtRemarks" placeholder="Entry Remarks">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="txtSpecialRemarks">JKK</label>
+                                    <input type="text" class="form-control form-control-sm" id="txtSpecialRemarks" placeholder="JKK Remarks">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="txtClientRemarks">Sale</label>
+                                    <input type="text" class="form-control form-control-sm" id="txtClientRemarks" placeholder="Sale Remarks">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label for="txtPaymentRemarks">Account</label>
+                                    <input type="text" class="form-control form-control-sm" id="txtPaymentRemarks" placeholder="Account Remarks">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <input type="checkbox" id="IsCheckDeal" name="IsCheckDeal" class="ckbox ckbox-primary" style="margin-top:12px" />
+                                    <label style="text-align: left; padding-left: 0%" for="IsCheckDeal">Is Deal</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*</div>
+                        </div>*@
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <input type="button" id="btnUpdate" class="btn btn-primary" value="Update">
+                    <input type="button" id="btnClear" class="btn btn-primary" value="Clear" onclick="Clear()">
+                </div>
+            </div><!-- modal-content -->
+        </div><!-- modal-dialog -->
+        <!-- modal -->
+    </div>
+</section>
+<script type="text/javascript">
+    var isSave = false;
+    $(document).ready(function () {
+        display();
+    });
+
+    function display() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetDemandList")',
+            traditional: true,
+            contentType: 'application/json; charset=utf-8',
+            success: function (json) {
+                if (json) {
+                    //var tableHeaders = '';
+                    //var dynamicColumns = [];
+                    //var i = 0;
+
+                    //tableHeaders += "<th>Edit</th>";
+                    //var obj = { sTitle: "Select", orderable: false };
+                    //dynamicColumns[i] = obj;
+                    //i++;
+
+                    //$.each(json.List[0], function (key, value) {
+                    //    tableHeaders += "<th>" + key + "</th>";
+
+                    //    var obj = { sTitle: key, orderable: false };
+
+                    //    dynamicColumns[i] = obj;
+                    //    i++;
+                    //});
+
+                    //$("#gridboxmap1").empty();
+                    //$("#gridboxmap1").append('<table id="tblExcelImport_Company" cellspacing="0" cellpadding="0" style="width: 100%; margin-bottom: 5px;white-space: nowrap;" class="table-bordered table-condensed table-striped grid"><thead class="uppercase"><tr>' + tableHeaders + '</tr></thead><tbody></tbody><tfoot></tfoot></table>');
+
+                    //fetch all records from JSON result and make row data set.
+                    var rowDataSet = [];
+                    var i = 0;
+                    //var totolOutStandingCarat = 0;
+                    //var totolOutStandingValue = 0;
+                    $.each(json.List, function (key, value) {
+                        var rowData = [];
+                        var j = 0;
+                        $.each(json.List[i], function (key, value) {
+                            rowData[j] = value;
+                            //        if (j == 7) {
+                            //            totolOutStandingCarat = Number(totolOutStandingCarat) + Number(value);
+                            //        }
+                            j++;
+                        });
+                        rowDataSet[i] = rowData;
+
+                        i++;
+                    });
+
+                    //$("#lbl_totol_outstanding").text(i);
+                    //$("#lbl_totol_outstanding_carat").text(totolOutStandingCarat);
+                    //$("#lbl_totol_outstanding_value").text(totolOutStandingCarat);
+
+
+
+                    var oTable = $('#tbl_Demand').dataTable({
+                        "bDestroy": true,
+                        "scrollY": 300,
+                        "scrollX": true,
+                        //"bFilter": false,
+                        "serverSide": false,
+                        "bInfo": true,
+                        "bAutoWidth": false,
+                        "bPaginate": true,
+                        "bLengthChange": true,
+                        //"fnPreDrawCallback": function () {
+                        //    show_loader();
+                        //},
+                        //"fnDrawCallback": function () {
+                        //    hide_loader();
+                        //},
+                        "bDestroy": true,
+                        "bSort": true,
+                        "sEmptyTable": "Loading data from server, Or Data Not Available...",
+                        "aaData": rowDataSet,
+                        //"aoColumns": dynamicColumns,
+                        "columns": [
+                            {
+                                "bSortable": false,
+                                "sWidth": "1%",
+                                "render": function (data, type, row, meta) {
+                                    debugger
+                                    return '<center><a href="javascript:void(0);" onclick="EditDetails(\'' + row[2] + '\',\'' + row[9] + '\',\'' + row[10] + '\',\'' + row[11] + '\',\'' + row[12] + '\',\'' + row[13] + '\',\'' + row[14] + '\',\'' + row[15] + '\',\'' + row[16] + '\');" style="padding:5px;"><i class="fa fa-edit" style="color:#444;"></i></a></center>'
+                                }
+                            },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              {
+                                  "bSortable": false,
+                                  "sWidth": "1%",
+                                  "render": function (data, type, row, meta) {
+                                      debugger
+                                      if (row[9] == 'True') {
+                                          return '<center><input type="checkbox" id="Active" checked="checked" disabled="disabled"></center>'
+                                      }
+                                      else {
+                                          return '<center><input type="checkbox" id="Active" disabled="disabled"></center>'
+                                      }
+                                  }
+                              },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" }
+
+
+
+                        ],
+                        "columnDefs": [
+                            { "targets": [1], "visible": false },
+                            { "targets": [15], "visible": false },
+                            { "targets": [16], "visible": false }
+
+                        ]
+                    });
+
+                }
+            },
+            error: function (json) { alert("Error " + json) }
+        });
+    };
+    $('#btnCloseModal').click(function () {
+        Clear();
+    });
+    $('#btnUpdate').click(function () {
+        isSave = true;
+        debugger
+        if (Valid()) {
+            debugger
+            $.ajax({
+                url: '@Url.Action("DemandStatusUpdate", "Demand")',
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    demand_No: $("#txtDemandNo").val(),
+                    status: $("#ddl_Status").val(),
+                    demand_deal_final: $("#IsCheckDeal")[0].checked == true ? 1 : 0,
+                    Follow: $("#txtFollow").val(),
+                    MobileNo: $("#txtMobile").val(),
+                    Remark: $("#txtRemarks").val(),
+                    Special_Remark: $("#txtSpecialRemarks").val(),
+                    Client_Remark: $("#txtClientRemarks").val(),
+                    Payment_Remark: $("#txtPaymentRemarks").val()
+
+                }),
+                contentType: "application/json; charset=utf-8"
+            }).done(function (data) {
+                if (data.success) {
+                    Clear();
+                    display();
+                    $("#btnCloseModal").click();
+                    //$("#btnSave").attr('class', 'btn btn-success');
+
+                }
+                //bootbox.alert(data.message);
+                alert(data.message);
+            });
+            //Clear();
+            //display();
+            //bootbox.alert(data.message);
+            alert(data.message);
+
+            count = 0;
+            $("#btnSave").attr('value', 'Update');
+        }
+
+    });
+    function EditDetails(No, Status, IsDeal,Remark,Jkk,Sale,Account,Follow,Mobile) {
+        debugger
+        $("#txtDemandNo").val(No);
+        $("#ddl_Status").val(Status).trigger("change");
+        $("#IsCheckDeal").prop("checked", IsDeal == 'True' ? true : false);
+        $("#txtRemarks").val(Remark);
+        $("#txtSpecialRemarks").val(Jkk);
+        $("#txtClientRemarks").val(Sale);
+        $("#txtPaymentRemarks").val(Account);
+        $("#txtFollow").val(Follow);
+        $("#txtMobile").val(Mobile);
+        //$("#btnSave").attr('value','Update');
+        $("#btnNewAdd").click();
+    }
+    function Clear() {
+        $("#ddl_Status").val(0);
+        $("#IsCheckDeal").prop("checked", true);
+        //$("#btnSave").attr('value', 'Save');
+    }
+    function Valid() {
+
+        if (isSave) {
+            debugger
+            if ($("#ddl_Status").val() == '') {
+                alert('Select Status.');
+                return false;
+            }
+            else {
+                return true;
+            }
+
+        }
+    }
+</script>
+
+
+
+
+
+
+
+

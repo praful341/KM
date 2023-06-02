@@ -1,0 +1,357 @@
+﻿
+@{
+    ViewBag.Title = "FormMaster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header">
+    @*<div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Web Form Master</h1>
+                </div>
+            </div>
+        </div>*@
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Web Pages Master</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    @*<form action="#" id="validate-1" class="form-horizontal row-border" novalidate="novalidate">*@
+                    <div class="form-group">
+                        <label for="ddl_DispName">Parent</label>
+                        @Html.DropDownList("ddl_DispName", (MultiSelectList)ViewBag.FormDisplayNameList, "Please Select...", new { @class = "form-control form-control-sm select2bs4", @placeholder = "Display Name", @id = "ddl_DispName" })
+                    </div>
+                    <div class="row">
+                        <div class="col-6 form-group">
+                            <label for="txtDisplayName">Display Name</label>
+                            <input type="text" class="form-control form-control-sm" id="txtDisplayName">
+                        </div>
+
+                        <div class="col-6 form-group">
+                            <label for="txtTitle">Title</label>
+                            <input type="text" class="form-control form-control-sm formrequired" id="txtTitle">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="txtDescription">Description</label>
+                        <input type="text" class="form-control form-control-sm" id="txtDescription">
+                    </div>
+                    <div class="row">
+                        <div class="col-6 form-group">
+                            <label for="txtController">Controller</label>
+                            <input type="text" class="form-control form-control-sm formrequired" id="txtController">
+                        </div>
+                        <div class="col-6 form-group">
+                            <label for="txtAction">Action</label>
+                            <input type="text" class="form-control form-control-sm" id="txtAction">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 form-group">
+                            <label for="txtDisplayRank">Display Rank</label>
+                            <input type="text" class="form-control form-control-sm" id="txtDisplayRank">
+                        </div>
+                        <div class="col-6 form-group">
+                            <label for="txtMenuLevel">Menu Level</label>
+                            <input type="text" class="form-control form-control-sm" id="txtMenuLevel">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="txtNaviUrl">Navigation Url</label>
+                        <input type="text" class="form-control form-control-sm" id="txtNaviUrl">
+                    </div>
+                    <div class="form-group">
+                        <label for="txtDisplayRank">Active</label>
+                        <input type="checkbox" name="chkActive" id="chkActive" checked data-bootstrap-switch data-off-color="danger" data-on-color="success">
+                        <label for="chkIsNewTab">Is New Tab</label>
+                        <input type="checkbox" id="chkIsNewTab" name="chkIsNewTab" checked data-bootstrap-switch data-off-color="danger" data-on-color="success">
+                    </div>
+                    
+                    
+                    @*<div class="form-actions divUser" style="margin-top: 0 !important;">
+                        <label class="col-md-5 control-label"></label>
+                        
+                    </div>*@
+                    @*</form>*@
+                </div>
+                <div class="card-footer">
+                    <input type="button" id="btnSave" class="btn btn-primary" value="Save" onclick="SaveForm()">
+                    <input type="button" id="btnClear" class="btn btn-primary" value="Clear" onclick="Clear()">
+                </div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">All Web Pages</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div style="overflow: auto;" class="table-responsive">
+                        @*<table style="width: 100%; margin-bottom: 5px;" class="table-bordered table-condensed table-striped" id="tblFormMaster">
+                                <thead class="uppercase">
+                                    <tr>
+                                        <th style="display: none;"></th>
+                                        <th>Parent</th>
+                                        <th>Display Name</th>
+                                        <th>Display Rank</th>
+                                        <th>Title</th>
+                                        <th>Decription</th>
+                                        <th>Active</th>
+                                        <th>Controller</th>
+                                        <th>Action</th>
+                                        <th>Form Group</th>
+                                        <th>Menu Level</th>
+                                        <th>Navigation Url</th>
+                                        <th>Is New Tab</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>*@
+                        <div style="overflow: auto; max-height: 600px;">
+                            <div id="gridboxmap1" class="box-body table-responsive no-padding">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+    </div>
+</section>
+
+
+<input type="hidden" id="hdnId" value="0" />
+<script>
+    $(document).ready(function () {
+        //display();
+        $('.formrequired').blur(function () {
+            if ($.trim($(this).val()) != '') {
+                $(this).css({
+                    "border": "",
+                    "background": ""
+                });
+            }
+        });
+    });
+    display1();
+
+    function Clear() {
+        $("#txtDisplayName").val("");
+        $("#txtDisplayRank").val("");
+        $("#txtTitle").val("");
+        $("#txtMenuLevel").val("");
+        $("#txtDescription").val("");
+        $("#txtController").val("");
+        $("#txtAction").val("");
+        $("#txtNaviUrl").val("");
+        $("#chkIsNewTab").prop("checked", false);
+        $("#chkActive").prop("checked", false);
+        //$("#ddl_Grp").val("0");
+        $("#ddl_DispName").val("0");
+        $("#hdnId").val("0");
+    }
+
+    function GetFormDetails(formId, ParentId, DisplayName, IsNewTab, DisplayRank, MenuLevel, Title, Form_Group_Id, Description, Controller, Action, NavigationUrl, Active) {
+        $("#txtTitle").val(Title);
+        $("#txtDescription").val(Description);
+        $("#txtController").val(Controller);
+        $("#txtAction").val(Action);
+        $("#hdnId").val(formId);
+        $("#chkActive").prop("checked", Active);
+        $("#txtDisplayName").val(DisplayName);
+        $("#txtDisplayRank").val(DisplayRank);
+        $("#txtMenuLevel").val(MenuLevel);
+        $("#txtNaviUrl").val(NavigationUrl);
+        $("#chkIsNewTab").prop("checked", IsNewTab);
+        //$("#ddl_Grp").val(Form_Group_Id).trigger('change');
+        $('#ddl_DispName').val(ParentId).trigger('change');
+        @*$.ajax({
+            url: '@Url.Action("GetFormDetails", "FormMaster")',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({ formId: formId, Title: Title }),
+            contentType: "application/json; charset=utf-8"
+        }).done(function (data) {
+            if (data.success) {
+                $("#txtTitle").val(data.response.Title);
+                $("#txtDescription").val(data.response.Description);
+                $("#txtController").val(data.response.Controller);
+                $("#txtAction").val(data.response.Action);
+                $("#hdnId").val(data.response.FormId);
+                $("#chkActive").prop("checked", data.response.Active);
+                $("#txtDisplayName").val(data.response.DisplayName);
+                $("#txtDisplayRank").val(data.response.DisplayRank);
+                $("#txtMenuLevel").val(data.response.MenuLevel);
+                $("#txtNaviUrl").val(data.response.NavigationUrl);
+                $("#chkIsNewTab").prop("checked", data.response.IsNewTab);
+                $("#ddl_Grp").prop(data.response.Form_Group_Id);
+                $("#ddl_DispName").prop(data.response.ParentId);
+            }
+        });*@
+    }
+
+    function SaveForm() {
+        var isValid = true;
+        $('.formrequired').each(function () {
+            if ($.trim($(this).val()) == '') {
+                isValid = false;
+                $(this).css({
+                    "border": "1px solid red",
+                    "background": "#FFCECE"
+                });
+            }
+            else {
+                $(this).css({
+                    "border": "",
+                    "background": ""
+                });
+            }
+        });
+
+        if (isValid) {
+            $.ajax({
+                url: '@Url.Action("SaveForm", "FormMaster")',
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    Id: $("#hdnId").val(), ParentId: $("#ddl_DispName").val(), DisplayName: $("#txtDisplayName").val(), DisplayRank: $("#txtDisplayRank").val(), Title: $("#txtTitle").val()
+                    , Description: $("#txtDescription").val(), Controller: $("#txtController").val()
+                    , Action: $("#txtAction").val(), MenuLevel: $("#txtMenuLevel").val(), NavigationUrl: $("#txtNaviUrl").val(), Form_Group_Id: 0,//$("#ddl_Grp").val(),
+                    Active: $("#chkActive").prop("checked"), IsNewTab: $("#chkIsNewTab").prop("checked")
+                }),
+                contentType: "application/json; charset=utf-8"
+            }).done(function (data) {
+                if (data.success) {
+                    Clear();
+                }
+                bootbox.alert(data.message);
+            });
+        }
+
+    }
+
+    function display1() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetAllForm")',
+            traditional: true,
+            contentType: 'application/json; charset=utf-8',
+            success: function (json) {
+                if (json) {
+                    var tableHeaders = '';
+                    var dynamicColumns = [];
+                    var i = 0;
+                    //var v = JSON(data)
+                    $.each(json.List[0], function (key, value) {
+                        tableHeaders += "<th>" + key + "</th>";
+
+                        var obj = { sTitle: key, orderable: false };
+
+                        dynamicColumns[i] = obj;
+                        i++;
+                    });
+
+                    $("#gridboxmap1").empty();
+                    $("#gridboxmap1").append('<table id="tblExcelImport" cellspacing="0" cellpadding="0" style="width: 100%; margin-bottom: 5px;" class="table table-bordered table-hover"><thead class="uppercase"><tr>' + tableHeaders + '</tr></thead><tbody></tbody><tfoot></tfoot></table>');
+
+
+                    //fetch all records from JSON result and make row data set.
+                    var rowDataSet = [];
+                    var i = 0;
+                    $.each(json.List, function (key, value) {
+                        var rowData = [];
+                        var j = 0;
+                        $.each(json.List[i], function (key, value) {
+                            rowData[j] = value;
+                            j++;
+                        });
+                        rowDataSet[i] = rowData;
+
+                        i++;
+                    });
+
+                    var oTable = $('#tblExcelImport').DataTable({
+                        "bDestroy": true,
+                        "bFilter": false,
+                        "serverSide": false,
+                        "bInfo": true,
+                        "bAutoWidth": false,
+                        "bPaginate": true,
+                        "bLengthChange": true,
+                        "fnPreDrawCallback": function () {
+                            //show_loader();
+                        },
+                        "fnDrawCallback": function () {
+                            //hide_loader();
+                        },
+                        "bDestroy": true,
+                        "bSort": true,
+                        "sEmptyTable": "Loading data from server, Or Data Not Available...",
+                        "aaData": rowDataSet,
+                        //"aoColumns": dynamicColumns,
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            $.ajax({
+                                "dataType": 'json',
+                                "type": "POST",
+                                "url": sSource,
+                                "data": aoData,
+                                "success": fnCallback
+                            });
+
+                        },
+                        "columns": [
+                              { "bVisible": false },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              { "sWidth": "1%" },
+                              {
+                                  "bSortable": false,
+                                  "sWidth": "1%",
+                                  "render": function (data, type, row, meta) {
+                                      return '<center><a href="javascript:void(0);" onclick="GetFormDetails(' + row[0] + ',' + row[1] + ',\'' + row[2] + '\',' + row[3] + ',' + row[4] + ',' + row[5] + ',\'' + row[6] + '\',' + row[7] + ',\'' + row[8] + '\',\'' + row[9] + '\',\'' + row[10] + '\',\'' + row[11] + '\',' + row[12] + ')" style="padding:5px;"><i class="fa fa-edit" style="color:#444;"></i></a></center>'
+                                  }
+                              }
+                        ]
+                    });
+                }
+            },
+            error: function (json) { alert("Error " + json) }
+        });
+    }
+
+    $(document).ready(function () {
+        //$(".select2").select2();
+        //$('#ddl_DispName').select2({
+        //    //placeholder: "Please Select...",
+        //    width: '100%'
+        //});
+    });
+    //$(document).ready(function () {
+    //    //$(".select2").select2();
+    //    $('#ddl_Grp').select2({
+    //        //placeholder: "Please Select...",
+    //        width: '100%'
+    //    });
+    //});
+</script>
